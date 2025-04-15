@@ -40,9 +40,14 @@ app.delete("/image/:id", (req, res) => {
 });
 
 app.post("/image",(req, res) => {
-    console.log(req.body)
 
-    res.json('{"message" : "Image ajouté"}');
+    connection.query(
+        "INSERT INTO images (url, categorie_id) VALUES (? , ?)",
+        [req.body.url, req.body.categorie_id],
+        (erreur, resultat) => {
+            res.json('{"message" : "Image ajouté"}');
+        }
+    )
 })
 
 app.get("/categories", (req, res) => {
@@ -50,7 +55,10 @@ app.get("/categories", (req, res) => {
     const categories = []
 
     connection.query(
-        "SELECT c.id, c.titre, i.url, i.id as id_image FROM categories c LEFT JOIN images i ON c.id = i.categorie_id",
+        `SELECT c.id, c.titre, i.url, i.id as id_image 
+            FROM categories c 
+            LEFT JOIN images i ON c.id = i.categorie_id 
+            ORDER BY c.id`,
         (err, resultat) => {
 
             for (let ligne of resultat) {
